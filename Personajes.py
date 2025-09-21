@@ -15,4 +15,5 @@ class default:
         self.x += dx
         self.y += dy
         self.x = max(0, min(self.x, Constantes.width - self.tamaño))
-        self.x = max(0, min(self.x, Constantes.height - self.tamaño))
+        self.y = max(0, min(self.y, Constantes.height - self.tamaño))
+    
