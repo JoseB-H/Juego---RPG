@@ -3,7 +3,7 @@ import Constantes
 
 class default:
     def __init__(self, x, y):
-        self.x = x
+        self.x = x  
         self.y = y
         self.tamaño = 20
         self.inventory = {"wood ": 0, "stone ": 0}
