@@ -24,13 +24,13 @@ def main():
         # --- movimientos del personaje
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            personaje.movimiento(-5, 0)
+            personaje.movimiento(-5, 0, game_world)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            personaje.movimiento(5, 0)
+            personaje.movimiento(5, 0, game_world)
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            personaje.movimiento(0, -5)
+            personaje.movimiento(0, -5, game_world)
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            personaje.movimiento(0, 5)
+            personaje.movimiento(0, 5, game_world)
 
         game_world.draw(ventana)   # fondo
         personaje.draw(ventana)    # Personaje
