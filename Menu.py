@@ -33,7 +33,7 @@ def main():
             personaje.movimiento(0, 5)
 
         game_world.draw(ventana)   # fondo
-        personaje.draw(ventana)    # personaje
+        personaje.draw(ventana)    # Personaje
         pygame.display.flip()
 
         clock.tick(60)  # limita a 60 FPS
