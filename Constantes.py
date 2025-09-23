@@ -1,5 +1,6 @@
 #TAMAÑOS
 width, height = 1280, 720
+personaje = 40
 
 #COLORES
 black = (0, 0, 0)
