@@ -14,3 +14,16 @@ class arbol:
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
+
+class Mini_stone: 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.stone = 1
+        path_mini_stone = os.path.join('assets','IMG','Objetos','mini_stone.png')
+        self.image = pygame.image.load(path_mini_stone).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (Constantes.smallStone, Constantes.smallStone))
+        self.size = self.image.get_width()
+
+    def draw(self, screen): 
+        screen.blit(self.image, (self.x, self.y))
