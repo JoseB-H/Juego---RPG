@@ -1,6 +1,8 @@
 #TAMAÑOS
 width, height = 1280, 720
 personaje = 40
+Tree = 50
+cesped = 64
 
 #COLORES
 black = (0, 0, 0)
