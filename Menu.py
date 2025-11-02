@@ -20,6 +20,9 @@ def main():
             if event.type == pygame.QUIT:  
                 pygame.quit()
                 sys.exit() 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_e:
+                    personaje.interact(game_world)
 
         # --- movimientos del personaje
         keys = pygame.key.get_pressed()
@@ -34,6 +37,7 @@ def main():
 
         game_world.draw(ventana)   # fondo
         personaje.draw(ventana)    # Personaje
+        game_world.draw_inventory(ventana, personaje)
         pygame.display.flip()
 
         clock.tick(60)  # limita a 60 FPS

@@ -14,3 +14,15 @@ blue = (0, 0, 255)
 yellow = (255, 255, 0)
 gray = (128, 128, 128)
 brown = (139, 69, 19)
+
+hechos = [
+    ("personaje", "heroe"),
+    ("personaje", "ogro"),
+    ("arma", "espada"),
+    ("arma", "garrote")
+]
+
+reglas = [
+    ("puede_usar", "heroe", "espada"),
+    ("puede_usar", "ogro", "garrote")
+]
