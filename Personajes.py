@@ -10,7 +10,7 @@ class default:
         self.image = pygame.image.load(img_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (Constantes.personaje, Constantes.personaje))
         self.size = self.image.get_width()
-        self.inventory = {"wood ": 0, "stone ": 0}
+        self.inventory = {"wood": 0, "stone": 0}
 
     def draw(self, screen):   # <-- antes se llamaba mover
         screen.blit( self.image, (self.x, self.y))
@@ -29,4 +29,22 @@ class default:
         self.y = max(0, min(self.y, Constantes.height - self.size))
     
     def check_collision(self, x, y, obj):
-        return (x < obj.x + obj.size and x + self.size > obj.x and y < obj.y + obj.size and y + self.size > obj.y)
+        return (x < obj.x + obj.size*.75 and x + self.size > obj.x and y < obj.y + obj.size*.75 and y + self.size > obj.y)
+    
+    def is_near(self, obj): 
+        return (abs(self.x - obj.x) <= max(self.size, obj.size)+5 and abs(self.y - obj.y) <= max(self.size, obj.size)+5)
+    
+    def interact(self, mundo):
+        for arbol in mundo.arbol:
+            if self.is_near(arbol):
+                if arbol.talar():
+                    self.inventory['wood'] += 1
+                    if arbol.wood == 0:
+                        mundo.arbol.remove(arbol)
+                    print("talando arbol")
+
+        for piedra in mundo.mini_stone:
+            if self.is_near(piedra):
+                self.inventory['stone'] += piedra.stone
+                mundo.mini_stone.remove(piedra)
+                print("recogiendo piedra")

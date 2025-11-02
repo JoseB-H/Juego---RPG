@@ -15,6 +15,12 @@ class arbol:
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
 
+    def talar (self):
+        if self.wood > 0:
+           self.wood -= 1
+           return True
+        return False
+
 class Mini_stone: 
     def __init__(self, x, y):
         self.x = x
