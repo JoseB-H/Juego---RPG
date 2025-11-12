@@ -14,6 +14,7 @@ def main():
     clock = pygame.time.Clock()
     game_world = mundo(Constantes.width, Constantes.height)  
     personaje = default(Constantes.width // 2, Constantes.height // 2)
+    show_inventory = False
 
     while True:
         for event in pygame.event.get():
@@ -23,6 +24,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_e:
                     personaje.interact(game_world)
+                if event.key == pygame.K_i:
+                    show_inventory = not show_inventory
 
         # --- movimientos del personaje
         keys = pygame.key.get_pressed()
@@ -37,7 +40,10 @@ def main():
 
         game_world.draw(ventana)   # fondo
         personaje.draw(ventana)    # Personaje
-        game_world.draw_inventory(ventana, personaje)
+        if show_inventory:
+            personaje.draw_inventory(ventana)
+        
+
         pygame.display.flip()
 
         clock.tick(60)  # limita a 60 FPS

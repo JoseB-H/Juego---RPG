@@ -15,6 +15,17 @@ yellow = (255, 255, 0)
 gray = (128, 128, 128)
 brown = (139, 69, 19)
 
+#BARRA DE ESTADO
+MAX_ENERGY = 100
+MAX_FOOD = 100
+MAX_THIRST = 100 
+
+#COLORES DE LA BARRA DE ESTADO
+ENERGY_COLOR = (255, 255, 0)  # AMARILLO
+FOOD_COLOR = (255, 165, 0)   # NARANJA
+THIRST_COLOR = (0, 191, 255) # AZUL CLARO
+BAR_BACKGROUND = (50, 50, 50)  # GRIS OSCURO
+
 hechos = [
     ("personaje", "heroe"),
     ("personaje", "ogro"),

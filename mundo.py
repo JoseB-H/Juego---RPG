@@ -28,8 +28,6 @@ class mundo:
             mini_stone.draw(screen)
 
     def draw_inventory(self, screen, Personajes):
-        font: pygame.font.Font = pygame.font.SysFont('Arial', 40)
-        wood_text = font.render(f"Wood: {Personajes.inventory['wood']}", True, Constantes.white)
-        stone_text = font.render(f"Stone: {Personajes.inventory['stone']}", True, Constantes.white)
-        screen.blit(wood_text, (10, 10))
-        screen.blit(stone_text, (10, 50))
+        font: pygame.font.Font = pygame.font.SysFont('Arial', 24)
+        instrucciones = font.render("ver inventario 'I':", True, Constantes.white)
+        screen.blit(instrucciones, (10, 10))
