@@ -60,7 +60,7 @@ hechos = [
     ("arma", "espada"),
     ("arma", "garrote")
 ]
-
+# LAS REGLAS DE INFERENCIA (O AARON TRABAJA VAGO)
 reglas = [
     ("puede_usar", "heroe", "espada"),
     ("puede_usar", "ogro", "garrote")
