@@ -16,6 +16,9 @@ def main():
     show_inventory = False
     status_update_timer = 0
 
+    camara_x = 0
+    camara_y = 0
+
     while True:
         dt = clock.tick(60)
         for event in pygame.event.get():
@@ -33,15 +36,23 @@ def main():
                     personaje.update_thirst(20)
 
         # Movimientos
+        dx = dy = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            personaje.movimiento(-5, 0, game_world)
+            dx = -5
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            personaje.movimiento(5, 0, game_world)
+            dx = 5
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            personaje.movimiento(0, -5, game_world)
+            dy = -5
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            personaje.movimiento(0, 5, game_world)
+            dy = 5
+            
+        personaje.movimiento(dx,dy,game_world)
+
+        game_world.update_chunks(personaje.x, personaje.y)
+
+        camara_x = personaje.x - Constantes.width // 2
+        camara_y = personaje.y - Constantes.height // 2
 
         # Actualizar tiempo del mundo
         game_world.update_time(dt)
@@ -58,9 +69,11 @@ def main():
             pygame.quit()
             sys.exit()
 
+        ventana.fill((0,0,0))
+        
         # Dibujar mundo y personaje
-        game_world.draw(ventana)  
-        personaje.draw(ventana)  
+        game_world.draw(ventana, camara_x, camara_y)  
+        personaje.draw(ventana, camara_x, camara_y)  
 
         # Dibujar inventario si está abierto
         if show_inventory:
@@ -74,9 +87,10 @@ def main():
         time_of_day = (game_world.current_time // Constantes.DAY_LENGTH) % 24
         time_text = font.render(f"Hora: {time_of_day}:00", True, Constantes.white)
 
-        ventana.blit(energy_text, (10, Constantes.height - 90))
-        ventana.blit(food_text, (10, Constantes.height - 65))
-        ventana.blit(thirst_text, (10, Constantes.height - 40))
+        # ✔ FIX: subir los textos (antes estaban demasiado abajo)
+        ventana.blit(energy_text, (10, Constantes.height - 150))
+        ventana.blit(food_text,   (10, Constantes.height - 120))
+        ventana.blit(thirst_text, (10, Constantes.height - 90))
 
         pygame.display.flip()
 
