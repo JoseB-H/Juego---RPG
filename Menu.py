@@ -1,10 +1,9 @@
-import pygame  # pyright: ignore[reportMissingImports]
+import pygame  
 import sys
 import Constantes
 from Personajes import default
 from mundo import mundo
 
-# --- MENU ---
 pygame.init()
 
 ventana = pygame.display.set_mode((Constantes.width, Constantes.height))
@@ -14,6 +13,7 @@ def main():
     clock = pygame.time.Clock()
     game_world = mundo(Constantes.width, Constantes.height)  
     personaje = default(Constantes.width // 2, Constantes.height // 2)
+    show_invnetory = False
 
     while True:
         for event in pygame.event.get():
@@ -23,6 +23,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_e:
                     personaje.interact(game_world)
+                if event.key == pygame.K_i:
+                    show_invnetory = not show_invnetory
 
         # --- movimientos del personaje
         keys = pygame.key.get_pressed()
@@ -35,12 +37,16 @@ def main():
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             personaje.movimiento(0, 5, game_world)
 
-        game_world.draw(ventana)   # fondo
-        personaje.draw(ventana)    # Personaje
-        game_world.draw_inventory(ventana, personaje)
+        game_world.draw(ventana)  
+        personaje.draw(ventana)  
+        if show_invnetory:
+            personaje.draw_inventory(ventana)
+        else:
+            game_world.draw_inventory(ventana, personaje)
+        
         pygame.display.flip()
 
-        clock.tick(60)  # limita a 60 FPS
+        clock.tick(60)  
 
-if __name__ == "__main__":
-    main()
+        if __name__ == "__main__":
+            main()

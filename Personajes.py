@@ -11,6 +11,15 @@ class default:
         self.image = pygame.transform.scale(self.image, (Constantes.personaje, Constantes.personaje))
         self.size = self.image.get_width()
         self.inventory = {"wood": 0, "stone": 0}
+        self.item_images = {
+            "wood": self.load_item_images("Arbol.png"),
+            "stone": self.load_item_images("mini_stone.png"),
+        }
+
+    def load_item_images(self, filename):
+        path = os.path.join('assets','IMG','Objetos', filename)
+        image = pygame.image.load(path).convert_alpha()
+        return pygame.transform.escale(image, (40,40))
 
     def draw(self, screen):   # <-- antes se llamaba mover
         screen.blit( self.image, (self.x, self.y))
@@ -48,3 +57,8 @@ class default:
                 self.inventory['stone'] += piedra.stone
                 mundo.mini_stone.remove(piedra)
                 print("recogiendo piedra")
+
+    def draw_inventory(self, screen):
+            background = pygame.Surface((Constantes.width, Constantes.height), pygame.SRCALPHA)
+            background.fill((0, 0, 0, 180))
+            screen.blit(background, (0, 0))
