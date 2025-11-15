@@ -1,6 +1,6 @@
+import os
 import pygame
 import Constantes
-import os
 from Constantes import *
 
 class default:
@@ -14,6 +14,7 @@ class default:
         self.size = self.image.get_width()
 
         self.inventory = {"wood": 0, "stone": 0}
+
         # Cargamos los sprites
         img_path = os.path.join('assets','IMG','Personajes','jugador.png')
         self.sprite_sheet = pygame.image.load(img_path).convert_alpha()
@@ -50,7 +51,6 @@ class default:
                               state * self.frame_size,
                               self.frame_size,
                               self.frame_size))
-                
                 if Constantes.personaje != self.frame_size:
                     surface = pygame.transform.scale(surface,(Constantes.personaje, Constantes.personaje))
                 frames.append(surface)
@@ -68,15 +68,18 @@ class default:
         image = pygame.image.load(path).convert_alpha()
         return pygame.transform.scale(image, (40,40))  
 
-    def draw(self, screen):
+    def draw(self, screen, camara_x, camara_y):
+        screen_x = self.x - camara_x
+        screen_y = self.y - camara_y
+
         current_frame = self.animations[self.current_state][self.animation_frame]
         if self.moving_left:
             current_frame = pygame.transform.flip(current_frame, True, False)
-        screen.blit(current_frame,(self.x,self.y))
+        screen.blit(current_frame,(screen_x,screen_y))
         self.draw_status_bars(screen)
 
     def movimiento(self, dx, dy, mundo):
-        self.moving = dx !=0 or dy!=0
+        self.moving = dx != 0 or dy != 0
         if self.moving:
             if dy < 0:
                 self.current_state = WALK_DOWN
@@ -99,23 +102,19 @@ class default:
                 self.current_state = IDLE_RIGHT
 
         new_x = self.x + dx
-        new_y = self.y + dy 
+        new_y = self.y + dy
 
-        for arbol in mundo.arbol:
-            if self.check_collision(new_x, new_y, arbol):
+        for tree_obj in mundo.trees:
+            if self.check_collision(new_x, new_y, tree_obj):
                 self.moving = False
                 return
 
         self.x += dx
         self.y += dy
-        self.x = max(0, min(self.x, Constantes.width - Constantes.personaje))
-        self.y = max(0, min(self.y, Constantes.height - Constantes.personaje))
-
         self.update_animations()
-        self.update_energy(-0.1)
-        
+        self.update_energy(-Constantes.MOVEMENT_ENERGY_COST)
+
     def check_collision(self, x, y, obj):
-        # Factor de colisión centrado en el tronco del árbol
         collision_width = obj.size * 0.4
         collision_height = obj.size * 0.4
         collision_x = obj.x + (obj.size - collision_width) / 2
@@ -128,26 +127,33 @@ class default:
             y + Constantes.personaje > collision_y
         )
 
-    
     def is_near(self, obj):
         return (
             abs(self.x - obj.x) <= max(self.size, obj.size) + 5 and
             abs(self.y - obj.y) <= max(self.size, obj.size) + 5
         )
-    
+
     def interact(self, mundo):
-        for arbol in mundo.arbol:
-            if self.is_near(arbol):
-                if arbol.talar():
+        # Talando arboles
+        for tree_obj in mundo.trees:
+            if self.is_near(tree_obj):
+                if tree_obj.talar():
                     self.inventory['wood'] += 1
-                    if arbol.wood == 0:
-                        mundo.arbol.remove(arbol)
+                    if tree_obj.wood == 0:
+                        for chunk in mundo.active_chunk.values():
+                            if tree_obj in chunk.trees:
+                                chunk.trees.remove(tree_obj)
+                                break
                     print("talando arbol")
 
-        for piedra in mundo.mini_stone:
-            if self.is_near(piedra):
-                self.inventory['stone'] += piedra.stone
-                mundo.mini_stone.remove(piedra)
+        # Recogiendo piedras
+        for stone in mundo.mini_stone:
+            if self.is_near(stone):
+                self.inventory['stone'] += stone.stone
+                for chunk in mundo.active_chunk.values():
+                    if stone in chunk.mini_stone:
+                        chunk.mini_stone.remove(stone)
+                        break
                 print("recogiendo piedra")
 
     def draw_inventory(self, screen):
@@ -155,7 +161,7 @@ class default:
         background.fill((0, 0, 0, 180))
         screen.blit(background, (0, 0))
 
-        font =pygame.font.SysFont(None, 36)
+        font = pygame.font.SysFont(None, 36)
         title = font.render("Inventario", True, Constantes.white)
         screen.blit(title, (Constantes.width // 2 - title.get_width() // 2, 50))
         item_font = pygame.font.Font(None, 24)
@@ -175,7 +181,7 @@ class default:
 
     def update_food(self, amount):
         self.food = max(0, min(self.food + amount, Constantes.MAX_FOOD))
-    
+
     def update_thirst(self, amount):
         self.thirst = max(0, min(self.thirst + amount, Constantes.MAX_THIRST))
 
@@ -188,19 +194,19 @@ class default:
         pygame.draw.rect(screen, Constantes.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
         pygame.draw.rect(screen, Constantes.ENERGY_COLOR, (x_offset, y_offset, bar_width * (self.energy / Constantes.MAX_ENERGY), bar_height))
 
-        y_offset +=15
+        y_offset += 15
         pygame.draw.rect(screen, Constantes.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
         pygame.draw.rect(screen, Constantes.FOOD_COLOR, (x_offset, y_offset, bar_width * (self.food / Constantes.MAX_FOOD), bar_height))
 
-        y_offset +=15
+        y_offset += 15
         pygame.draw.rect(screen, Constantes.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
         pygame.draw.rect(screen, Constantes.THIRST_COLOR, (x_offset, y_offset, bar_width * (self.thirst / Constantes.MAX_THIRST), bar_height))
 
     def update_status(self):
-        self.update_food(-0.00555)
-        self.update_thirst(-0.00555)
+        self.update_food(-Constantes.FOOD_DECREASE_RATE)
+        self.update_thirst(-Constantes.THIRST_DECREASE_RATE)
 
         if self.food < Constantes.MAX_FOOD * 0.2 or self.thirst < Constantes.MAX_THIRST * 0.2:
-            self.update_energy(-0.05)
+            self.update_energy(-Constantes.ENERGY_DECREASE_RATE)
         else:
-            self.update_energy(0.01)
+            self.update_energy(Constantes.ENERGY_INCREASE_RATE)
