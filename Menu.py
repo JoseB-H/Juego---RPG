@@ -47,10 +47,12 @@ def main():
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             dy = 5
             
+        #PARA CORRER
+        personaje.is_runing = keys[pygame.K_LSHIFT] and personaje.stamina > 0
         personaje.movimiento(dx,dy,game_world)
-
+        #ACTULIZA LOS CHUNKS BASADOS EN LE PERSONJAE
         game_world.update_chunks(personaje.x, personaje.y)
-
+        #CAMARA SIGUE A PERSONAJE XD
         camara_x = personaje.x - Constantes.width // 2
         camara_y = personaje.y - Constantes.height // 2
 
@@ -80,17 +82,32 @@ def main():
             personaje.draw_inventory(ventana)
 
         font = pygame.font.SysFont('Arial', 24)
-        energy_text = font.render(f"Energía: {personaje.energy}", True, Constantes.white)
-        food_text = font.render(f"Comida: {personaje.food}", True, Constantes.white)
-        thirst_text = font.render(f"Sed: {personaje.thirst}", True, Constantes.white)
 
-        time_of_day = (game_world.current_time // Constantes.DAY_LENGTH) % 24
-        time_text = font.render(f"Hora: {time_of_day}:00", True, Constantes.white)
+        # Usamos int() para mostrar solo la parte entera.
+        energy_text = font.render(f"Energía: {int(personaje.energy)}", True, Constantes.white)
+        food_text = font.render(f"Comida: {int(personaje.food)}", True, Constantes.white)
+        thirst_text = font.render(f"Sed: {int(personaje.thirst)}", True, Constantes.white)
+        stamina_text = font.render(f"Stamina: {int(personaje.stamina)}", True, Constantes.white)
+        
+        MS_PER_DAY = Constantes.DAY_LENGTH
+        # Hay 1440 minutos en un día (24 * 60)
+        MS_PER_MINUTE = MS_PER_DAY / 1440 
+        # 1. Ajustar el tiempo actual al ciclo de 24hd
+        current_time_in_cycle = game_world.current_time % MS_PER_DAY
+        # 2. Convertir milisegundos a minutos totales (usamos round para precisión)
+        total_minutes = int(round(current_time_in_cycle / MS_PER_MINUTE))
+        # 3. Calcular la hora y los minutos
+        current_hour = (total_minutes // 60) % 24
+        current_minute = total_minutes % 60
+        time_display = f"{str(current_hour).zfill(2)}:{str(current_minute).zfill(2)}"
+        time_text = font.render(f"Hora: {time_display}", True, Constantes.white)
 
         # ✔ FIX: subir los textos (antes estaban demasiado abajo)
-        ventana.blit(energy_text, (10, Constantes.height - 150))
-        ventana.blit(food_text,   (10, Constantes.height - 120))
-        ventana.blit(thirst_text, (10, Constantes.height - 90))
+        ventana.blit(energy_text, (0, Constantes.height - 150))
+        ventana.blit(food_text,   (0, Constantes.height - 120))
+        ventana.blit(thirst_text, (0, Constantes.height - 90))
+        ventana.blit(time_text, (0, Constantes.height - 60))
+        ventana.blit(stamina_text, (0, Constantes.height - 30))
 
         pygame.display.flip()
 

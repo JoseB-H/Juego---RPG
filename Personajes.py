@@ -27,18 +27,20 @@ class default:
         self.current_state = IDLE_DOWN
         self.moving = False
         self.moving_left = False
+        self.is_runing = False
 
         # cargamos todas las animaciones
         self.animations = self.load_animations()
         
         self.item_images = {
-            "wood": self.load_item_images("Arbol.png"),
+            "wood": self.load_item_images("madera.png"),
             "stone": self.load_item_images("mini_stone.png"),
         }
 
         self.energy = Constantes.MAX_ENERGY
         self.food = Constantes.MAX_FOOD
         self.thirst = Constantes.MAX_THIRST
+        self.stamina = Constantes.MAX_STAMINA
 
     def load_animations(self):
         animations = {}
@@ -60,8 +62,11 @@ class default:
     def update_animations(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.animation_timer > self.animation_delay:
-            self.animation_timer = current_time
-            self.animation_frame = (self.animation_frame + 1) % BASIC_FRAMES
+            #AJUSTAR LA VELOCIDAD DE LA NIMACION
+            animation_speed = RUNNING_ANIMATION_DELAY if self.is_runing else ANIMATION_DELAY
+            if current_time - self.animation_timer > animation_speed:
+                self.animation_timer = current_time
+                self.animation_frame = (self.animation_frame + 1) % BASIC_FRAMES
 
     def load_item_images(self, filename):
         path = os.path.join('assets','IMG','Objetos', filename)
@@ -81,6 +86,10 @@ class default:
     def movimiento(self, dx, dy, mundo):
         self.moving = dx != 0 or dy != 0
         if self.moving:
+            #ajustar la velocidad
+            speed_multiplier = RUN_SPEED if self.is_runing and self.stamina > 0 else WALK_SPEED
+            dx *= speed_multiplier / WALK_SPEED
+            dy *= speed_multiplier / WALK_SPEED
             if dy < 0:
                 self.current_state = WALK_DOWN
                 self.moving_left = False
@@ -112,7 +121,15 @@ class default:
         self.x += dx
         self.y += dy
         self.update_animations()
-        self.update_energy(-Constantes.MOVEMENT_ENERGY_COST)
+        
+        if self.moving:
+            if self.is_runing and self.stamina > 0:
+                self.update_stamina(-STAMINA_DECREASE_RATE)
+                self.update_energy(-MOVEMENT_ENERGY_COST)
+            else:
+                self.update_energy(-MOVEMENT_ENERGY_COST)
+                if not self.moving:
+                    self.update.stamina(STAMINA_INCREASE_RATE)
 
     def check_collision(self, x, y, obj):
         collision_width = obj.size * 0.4
@@ -185,6 +202,9 @@ class default:
     def update_thirst(self, amount):
         self.thirst = max(0, min(self.thirst + amount, Constantes.MAX_THIRST))
 
+    def update_stamina(self, amount):
+        self.stamina = max(0, min(self.stamina + amount, Constantes.MAX_STAMINA))
+
     def draw_status_bars(self, screen):
         bar_width = 100
         bar_height = 20
@@ -202,7 +222,15 @@ class default:
         pygame.draw.rect(screen, Constantes.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
         pygame.draw.rect(screen, Constantes.THIRST_COLOR, (x_offset, y_offset, bar_width * (self.thirst / Constantes.MAX_THIRST), bar_height))
 
+        y_offset += 15
+        pygame.draw.rect(screen, Constantes.BAR_BACKGROUND, (x_offset, y_offset, bar_width, bar_height))
+        pygame.draw.rect(screen, Constantes.STAMINA_COLOR, (x_offset, y_offset, bar_width * (self.stamina / Constantes.MAX_STAMINA), bar_height))
+
     def update_status(self):
+        #APLICAMOS MULTIPLICADORES
+        food_rate = FOOD_DECREASE_RATE * (RUN_FOOD_DECREASE_MULTIPLIER if self.is_runing else 1)
+        thirst_rate = THIRST_DECREASE_RATE * (RUN_THIRST_DECREASE_MULTIPLIER if self.is_runing else 1)
+
         self.update_food(-Constantes.FOOD_DECREASE_RATE)
         self.update_thirst(-Constantes.THIRST_DECREASE_RATE)
 
@@ -210,3 +238,6 @@ class default:
             self.update_energy(-Constantes.ENERGY_DECREASE_RATE)
         else:
             self.update_energy(Constantes.ENERGY_INCREASE_RATE)
+        #RECUPERE STAMINA SI NO ESTA CORRIENDO
+        if not self.is_runing:
+            self.update_stamina(STAMINA_INCREASE_RATE)
