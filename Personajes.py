@@ -2,6 +2,7 @@ import os
 import pygame
 import Constantes
 from Constantes import *
+from inventory import Inventory
 
 class default:
     def __init__(self, x, y):
@@ -13,7 +14,7 @@ class default:
         self.image = pygame.transform.scale(self.image, (Constantes.personaje, Constantes.personaje))
         self.size = self.image.get_width()
 
-        self.inventory = {"wood": 0, "stone": 0}
+        self.inventory = Inventory()
 
         # Cargamos los sprites
         img_path = os.path.join('assets','IMG','Personajes','jugador.png')
@@ -149,13 +150,13 @@ class default:
             abs(self.x - obj.x) <= max(self.size, obj.size) + 5 and
             abs(self.y - obj.y) <= max(self.size, obj.size) + 5
         )
-
+    
     def interact(self, mundo):
         # Talando arboles
         for tree_obj in mundo.trees:
             if self.is_near(tree_obj):
                 if tree_obj.talar():
-                    self.inventory['wood'] += 1
+                    self.inventory.add_item('wood')
                     if tree_obj.wood == 0:
                         for chunk in mundo.active_chunk.values():
                             if tree_obj in chunk.trees:
@@ -166,32 +167,22 @@ class default:
         # Recogiendo piedras
         for stone in mundo.mini_stone:
             if self.is_near(stone):
-                self.inventory['stone'] += stone.stone
+                self.inventory.add_item('stone')
                 for chunk in mundo.active_chunk.values():
                     if stone in chunk.mini_stone:
                         chunk.mini_stone.remove(stone)
                         break
                 print("recogiendo piedra")
 
-    def draw_inventory(self, screen):
-        background = pygame.Surface((Constantes.width, Constantes.height), pygame.SRCALPHA)
-        background.fill((0, 0, 0, 180))
-        screen.blit(background, (0, 0))
 
-        font = pygame.font.SysFont(None, 36)
-        title = font.render("Inventario", True, Constantes.white)
-        screen.blit(title, (Constantes.width // 2 - title.get_width() // 2, 50))
-        item_font = pygame.font.Font(None, 24)
-        y_offset = 80
-        for item, quantity in self.inventory.items():
-            if quantity > 0:
-                screen.blit(self.item_images[item], (Constantes.width // 2 - 100, y_offset))
-                text = item_font.render(f"{item.capitalize()}: {quantity}", True, Constantes.white)
-                screen.blit(text, (Constantes.width // 2 - 50, y_offset + 10))
-                y_offset += 60
-
-        close_text = font.render("Presiona 'I' para cerrar", True, Constantes.white)
-        screen.blit(close_text, (Constantes.width // 2 - close_text.get_width() // 2, Constantes.height - 40))
+    def draw_inventory(self, screen, show_inventory=False):
+        #dibujamos el inventario
+        self.inventory.draw(screen, show_inventory)
+        #texto abrir y cerrar
+        if show_inventory:
+            font = pygame.font.Font(None,24)
+            close_text = font.render("Press 'I' cerrar inventory", True, Constantes.white)
+            screen.blit(close_text, (Constantes.white // 2 - close_text.get_width() // 2, Constantes.height -40))
 
     def update_energy(self, amount):
         self.energy = max(0, min(self.energy + amount, Constantes.MAX_ENERGY))

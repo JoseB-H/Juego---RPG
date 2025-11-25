@@ -35,6 +35,11 @@ def main():
                 if event.key == pygame.K_t:
                     personaje.update_thirst(20)
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                personaje.inventory.handle_click(pygame.mouse.get_pos(), event.button, show_inventory)
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                personaje.inventory.handle_click(pygame.mouse.get_pos(), event.button, show_inventory)
+
         # Movimientos
         dx = dy = 0
         keys = pygame.key.get_pressed()
@@ -77,10 +82,9 @@ def main():
         game_world.draw(ventana, camara_x, camara_y)  
         personaje.draw(ventana, camara_x, camara_y)  
 
-        # Dibujar inventario si está abierto
-        if show_inventory:
-            personaje.draw_inventory(ventana)
-
+        #siempre visible (Ahora usando la función de la clase Inventory)
+        personaje.inventory.draw(ventana, show_inventory)
+        
         font = pygame.font.SysFont('Arial', 24)
 
         # Usamos int() para mostrar solo la parte entera.
