@@ -75,10 +75,6 @@ class default:
         return animations
 
     def load_axe_animations(self):
-        """
-        Carga y escala las animaciones de acción (hacha) a Constantes.personaje.
-        Esto asegura que el tamaño final sea idéntico al del sprite normal (70x70).
-        """
         animations = []
         # Definimos el orden de las filas del sprite sheet de acción: [Right, Down, Up]
         rows_to_load = [3, 4, 5]
@@ -87,19 +83,12 @@ class default:
         for row in rows_to_load:
             frames = []
             for frame in range(AXE_FRAMES):
-                # 1. Extraer el frame original (48x48)
                 temp_surface = pygame.Surface((Constantes.ACTION_FRAME_SIZE, Constantes.ACTION_FRAME_SIZE), pygame.SRCALPHA)
                 x = (frame % AXE_COLS) * Constantes.ACTION_FRAME_SIZE
                 frame_rect = pygame.Rect(x, row * Constantes.ACTION_FRAME_SIZE, Constantes.ACTION_FRAME_SIZE, Constantes.ACTION_FRAME_SIZE)
                 temp_surface.blit(self.action_sprite_sheet, (0,0), frame_rect)
-
-                # 2. Superficie final del tamaño exacto del personaje (70x70)
                 final_surface = pygame.Surface((target_size, target_size), pygame.SRCALPHA)
-
-                # 3. Escalar el sprite de acción (48x48) al tamaño final (70x70)
                 scaled_temp = pygame.transform.scale(temp_surface, (target_size, target_size))
-                
-                # 4. Dibujar en la superficie final (sin offsets, ya tiene el tamaño correcto)
                 final_surface.blit(scaled_temp, (0,0)) 
 
                 frames.append(final_surface)
@@ -135,7 +124,6 @@ class default:
         current_frame = None
 
         if self.is_talar:
-            # FIX: Mapeo de índices de animación de acción (0:Right, 1:Down, 2:Up)
             if self.current_state in [IDLE_RIGHT, WALK_RIGHT]:
                 current_frame = self.axe_animations[0][self.talar_frame] # Fila 3 (Derecha/Izquierda)
             elif self.current_state in [IDLE_DOWN, WALK_DOWN]:
@@ -151,8 +139,6 @@ class default:
             if self.moving_left:
                 current_frame = pygame.transform.flip(current_frame, True, False)
 
-        # FIX: Como ambos sprites (normal y acción) ya están escalados a 70x70,
-        # se dibujan exactamente en la misma posición (screen_x, screen_y)
         if current_frame:
             screen.blit(current_frame,(screen_x,screen_y))
             
@@ -166,7 +152,6 @@ class default:
             dx *= speed_multiplier / WALK_SPEED
             dy *= speed_multiplier / WALK_SPEED
             
-            # FIX: Asegurar que WALK_DOWN y WALK_UP coincidan con la dirección de movimiento
             if dy < 0:
                 self.current_state = WALK_UP # Moviendo hacia arriba (y disminuye)
                 self.moving_left = False
@@ -205,8 +190,6 @@ class default:
                 self.update_energy(-MOVEMENT_ENERGY_COST)
             else:
                 self.update_energy(-MOVEMENT_ENERGY_COST)
-                
-        # RECUPERE STAMINA SI NO ESTA CORRIENDO - Se movió la lógica al final de update_status para que solo recupere cuando no se esté moviendo/corriendo
             
     def check_collision(self, x, y, obj):
         collision_width = obj.size * 0.4
@@ -255,7 +238,6 @@ class default:
         # Recogiendo piedras
         for stone in mundo.mini_stone:
             if self.is_near(stone):
-                # Asumimos que stone.collect() devuelve la cantidad de piedra recogida
                 if stone.collect() > 0:
                     self.inventory.add_item('stone')
                     for chunk in mundo.active_chunk.values():
@@ -271,7 +253,6 @@ class default:
         #texto abrir y cerrar
         if show_inventory:
             font = pygame.font.Font(None,24)
-            # FIX: El cálculo de la posición x estaba usando Constantes.white en lugar de Constantes.width
             close_text = font.render("Press 'I' cerrar inventory", True, Constantes.white)
             screen.blit(close_text, (Constantes.width // 2 - close_text.get_width() // 2, Constantes.height -40))
 

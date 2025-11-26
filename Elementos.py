@@ -19,10 +19,6 @@ class arbol:
             screen.blit(self.image, (screen_x, screen_y))
 
     def talar(self, with_axe=False):
-        """
-        Reduce la madera del árbol y retorna la cantidad recolectada.
-        Con hacha: 3 de daño. Sin hacha: 1 de daño.
-        """
         if self.wood <= 0:
             return 0 # Devuelve 0 si ya está agotado
         damage = 1
